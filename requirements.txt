@@ -1,0 +1,10 @@
+flask>2.0
+flask-cors
+opencv-python-headless
+natsort
+requests~=2.25.1
+numpy~=1.21.6
+opencv-python-headless
+uvicorn~=0.18.2
+Pillow~=8.0.0
+fastapi~=0.68.1

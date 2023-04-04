@@ -1,0 +1,5 @@
+{
+  "json_path": "./data/tracking_annotation_sample",
+  "json_output_path": "./data/tracking_annotation_output",
+  "video_path" : "./data/videos"
+}

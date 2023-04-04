@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/style.css" rel="stylesheet">
+    <title>Label Editor</title>
+</head>
+<body>
+<div style="width:100%;">
+    <img id="image1" src="http://www.gravatar.com/avatar/0865e7bad648eab23c7d4a843144de48?s=128&d=identicon&r=PG" usemap="#image-map" width="100%" alt="">
+</div>
+
+<script>
+    window.onload = function () {
+
+        var map = document.getElementById('image1');
+        map.addEventListener('click', function(e) {
+            var realWidth = this.naturalWidth;
+            var realHeight = this.naturalHeight;
+            console.log("Original width=" + realWidth + ", " + "Original height=" + realHeight);
+            var x = e.pageX - this.offsetLeft;
+            var y = e.pageY - this.offsetTop;
+            alert("Page (" + x + "," + y +" )");
+            alert("Real (" + Math.round(x * realWidth / this.width) + "," + Math.round(y * realHeight / this.height) + " )");
+        });
+    }
+</script>
+</body>
+
+
+
+

@@ -1,0 +1,111 @@
+<Html>
+    <Head>
+        <Title>Sample Dialog</Title>
+        <!-- Include JQUERY -->
+        <Script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></Script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    </Head>
+    <Body>
+        <script>    
+            // Jquery close ModalInputForm
+            function closeModal() {
+                $('#ModalInputForm').modal('hide');
+            }
+
+            // Jquery add click event to SaveChanges button to closeModal
+            $(document).ready(function () {
+                $('#SaveChanges').click(function () {
+
+                    // Update html of LabelToUpdate
+                    var newLabel = $('#LableValue').val();
+
+                    $('#LabelToUpdate').html(newLabel);
+
+                    closeModal();
+                });
+
+                $('#OpenButton').click(function () {
+                    // NOTE : You can open the button this way also.
+                   // $('#ModalInputForm').modal('show');
+
+                    var labelValue = $('#LabelToUpdate').html();
+                    $('#LableValue').val(labelValue);
+
+                });
+            });
+        
+        </script>    
+ 
+        <div class="container">
+            <!-- Button trigger modal -->
+            <div class="row">
+
+            </div>
+            <div class="row">
+               <section class="col-xs-6" style="padding-top:20px;">
+                    <button id="OpenButton" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#ModalInputForm">
+                        Launch My Form
+                    </button>
+               </section>  
+               <section class="col-xs-6">
+                    
+                    <h1 id="LabelToUpdate">Label to Update</h1>
+                 
+                </section>
+            </div>
+        </div>
+    
+
+        <!-- Modal -->
+        <div class="modal fade" id="ModalInputForm" tabindex="-1" role="dialog"  aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    
+                    <div class="modal-header">
+                        <!-- This adds the X button on the top right to close the dialog box. Remove if you don't want that--> 
+                        <button type="button" class="close" 
+                            data-dismiss="modal">
+                                <span aria-hidden="true">&times;</span>
+                                <span class="sr-only">Close</span>
+                       </button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            Please edit your label
+                        </h4>
+                    </div>
+                    
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="LableValue">New Lable Value</label>
+                                <input type="email" class="form-control" id="LableValue" placeholder="Enter Lable"/>
+                            </div>                                                      
+                        </form>                                                
+                    </div>
+                    
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button id="SaveChanges" type="button" class="btn btn-primary">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Body>
+</Html>
+
+
+
+
+ 
+
