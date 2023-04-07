@@ -105,7 +105,7 @@ def download_videos(videos: list, status_queue: Queue):
 
 
 def process_videos(videos: list, status_queue: Queue):
-    # create a thread calling download_videos, pas in the json_files and output_path, and status_queue
+    # create a thread calling download_videos, pass in the json_files and output_path, and status_queue
     t = Thread(target=download_videos, args=(videos, status_queue))
     t.daemon = True
     t.start()

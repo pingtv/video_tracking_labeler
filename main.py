@@ -44,18 +44,21 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/next')
-def next_frame():
+@app.route('/current')
+def current_frame():
     global controller
-    direct = request.args.get('direction')
-    if direct == 'next':
-        controller.next_frame()
-    elif direct == 'prev':
-        controller.prev_frame()
-    elif direct == 'current':
-        controller.current_frame()
-    else:
-        raise Exception('Invalid direction')
+    controller.current_frame()
+
+    return flask.jsonify({'image_data': controller.current_image.decode('utf-8'),
+                          'object_data': controller.current_object_data})
+
+@app.route('/update_frame', methods=['POST'])
+def update_frame():
+    frame_number = int(request.form['frame_number'])
+    # Process the frame number and generate the new frame URL
+    controller.update_frame(frame_number)
+
+    print(frame_number)
 
     return flask.jsonify({'image_data': controller.current_image.decode('utf-8'),
                           'object_data': controller.current_object_data})
@@ -66,7 +69,7 @@ def save():
     """ update the current object data and save it to the json file """
     global controller
     data = request.get_json()
-    return flask.jsonify(controller.update_current_object_data(data['new_value'], data['old_value']))
+    return flask.jsonify(controller.update_current_object_data(data['new_value'], data['old_value'], data['selected_object'], data['frame_data']))
 
 
 if __name__ == '__main__':

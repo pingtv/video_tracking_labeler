@@ -9,11 +9,12 @@ let controller = {
         btn_next: $("#btn_next"),
         btn_prev: $("#btn_prev"),
         img_frame: $("#img_frame"),
+        frameNumber: $("#frameNumber"),
         info_label: $("#LabelInfoValue"),
         input_form: $("#ModalInputForm"),
         info_dialog: $("#ModalInfo"),
         btn_save_changes: $("#SaveChanges"),
-        lbl_labelvalue: $("#LableValue")
+        lbl_labelvalue: $("#LabelValue")
 
     },
     init: function (config) {
@@ -40,14 +41,12 @@ let controller = {
                             clearInterval(timer);
 
                             $.ajax({
-                                url: '/next',
+                                url: '/current',
                                 type: "GET",
-                                data: {
-                                    direction: 'current'
-                                },
                                 success: function (data) {
                                     if (data.hasOwnProperty('image_data')) {
                                         that.uiElements.img_frame.attr("src", "data:image/jpeg;base64," + data['image_data']);
+                                        that.uiElements.frameNumber.attr("value", data['object_data']['frameNumber']);
                                         that.data.object_data = data['object_data']
                                         waitdlg.hide();
                                     }
@@ -91,7 +90,7 @@ let controller = {
             that.data.selected_object = null;
 
             // Update html of LabelToUpdate
-            let newLabel = $('#LableValue').val();
+            let newLabel = $('#LabelValue').val();
 
             if (that.uiElements.input_form.attr('data-oldlabel') !== newLabel) {
                 // update data
@@ -101,8 +100,10 @@ let controller = {
                     url: '/save',
                     type: "POST",
                     data: JSON.stringify({
-                        'old_value': selected['classifications'][0]['answer']['value'],
-                        'new_value': newLabel
+                        'old_value': that.uiElements.input_form.attr('data-oldlabel'),
+                        'new_value': newLabel,
+                        'selected_object': selected,
+                        'frame_data': that.data.object_data
                     }),
                     dataType: "json",
                     contentType: "application/json; charset=utf-8",
@@ -113,6 +114,7 @@ let controller = {
                         } else {
                             if (data.hasOwnProperty('image_data')) {
                                 that.uiElements.img_frame.attr("src", "data:image/jpeg;base64," + data['image_data']);
+                                that.uiElements.frameNumber.attr("value", data['object_data']['frameNumber']);
                                 that.data.object_data = data['object_data']
                             } else {
                                 that.uiElements.info_label.val('Error updating: no image data');
@@ -145,37 +147,26 @@ let controller = {
                 return;
             }
 
+            let frameNumberInput = that.uiElements.frameNumber;
+            let currentFrameNum = parseInt(frameNumberInput.val(), 10);
+            let newFrameNum;
+
             let code = e.keyCode || e.which;
-            let direction = 'none'
-            if (code === 39) { // right arrow
-                direction = 'next';
-            } else if (code === 37) { // left arrow
-                direction = 'prev';
+            if (code === 39) { // Right arrow key
+                newFrameNum = currentFrameNum + 1;
+            } else if (code === 37) { // Left arrow key
+                newFrameNum = currentFrameNum - 1;
             } else {
                 return;
             }
 
-            // ajax get call to /next_frame sending direction
+            frameNumberInput.val(newFrameNum);
 
-            $.ajax({
-                url: '/next',
-                type: "GET",
-                data: {
-                    direction: direction
-                },
-                success: function (data) {
-                    if (data.hasOwnProperty('image_data')) {
-                        that.uiElements.img_frame.attr("src", "data:image/jpeg;base64," + data['image_data']);
-                        that.data.object_data = data['object_data']
-                    }
-                },
-                error: function (jqxhr, textStatus, error) {
-                    console.log("Error: " + error);
-                }
-            });
-
+            // Now you need to update the displayed frame as well, you can call updateFrame() here:
+            that.updateFrame();
 
         });
+
         // --- handle image click -----
         that.uiElements.img_frame.click(function (e) {
 
@@ -204,11 +195,19 @@ let controller = {
                     let bbox = obj.bbox;
                     if (orig_x >= bbox.left && orig_x <= bbox.left + bbox.width && orig_y >= bbox.top && orig_y <= bbox.top + bbox.height) {
                         that.data.selected_object = obj;
-                        let label = obj['classifications'][0]['answer']['value'];
-                        that.uiElements.lbl_labelvalue.val(label);
-                        that.uiElements.input_form.attr('data-oldlabel', label);
-                        that.uiElements.input_form.modal('show');
-                        break;
+                        if (obj['classifications'].length === 0) {
+                            // let label = obj['classifications'][0]['answer']['value'];
+                            // that.uiElements.lbl_labelvalue.val(label);
+                            that.uiElements.input_form.attr('data-oldlabel', "");
+                            that.uiElements.input_form.modal('show');
+                            break;
+                        } else {
+                            let label = obj['classifications'][0]['answer']['value'];
+                            that.uiElements.lbl_labelvalue.val(label);
+                            that.uiElements.input_form.attr('data-oldlabel', label);
+                            that.uiElements.input_form.modal('show');
+                            break;
+                        }
                     }
                 }
             }
@@ -216,6 +215,37 @@ let controller = {
 
         });
 
+        // --- handle frame number change ----
+        this.uiElements.frameNumber.on('change', function() {
+            that.updateFrame();
+        });        
+
+        // Make sure enter doesn't reload the page
+        this.uiElements.frameNumber.on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $(this).trigger('change');
+            }
+        });
+    },
+
+    updateFrame: function() {
+        let frameNumber = this.uiElements.frameNumber.val();
+        let that = this;
+        $.ajax({
+            url: '/update_frame',
+            type: 'POST',
+            data: {'frame_number': frameNumber},
+            success: function(data) {
+                if (data.hasOwnProperty('image_data')) {
+                    that.uiElements.img_frame.attr("src", "data:image/jpeg;base64," + data['image_data']);
+                    that.uiElements.frameNumber.attr("value", data['object_data']['frameNumber']);
+                    that.data.object_data = data['object_data']
+                }
+            },
+            error: function(error) {
+                console.log("Error: " + error);
+            }
+        });
     }
 };
-
