@@ -13,6 +13,19 @@
 <body>
 
 <div class="container-fluid mt-5 rounded border border-secondary">
+    <!-- Add a new row for the editable frame number display -->
+    <div class="row mt-3">
+        <div class="col">
+            <form>
+                <!-- Add an editable frame number display using Bootstrap classes -->
+                <div class="form-group">
+                    <label for="frameNumber">Frame Number:</label>
+                    <input type="number" min="0" class="form-control" id="frameNumber" value="0">
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <img id="img_frame" src=""
              alt="">
@@ -55,8 +68,8 @@
 
                 <form role="form">
                     <div class="form-group">
-                        <label for="LableValue">New Label Value</label>
-                        <input type="text" class="form-control" id="LableValue" placeholder="Enter Lable"/>
+                        <label for="LabelValue">New Label Value</label>
+                        <input type="text" class="form-control" id="LabelValue" placeholder="Enter Label"/>
                     </div>
                 </form>
             </div>
@@ -89,7 +102,7 @@
                 <form role="form">
                     <div class="form-group">
                         <label for="LabelInfoValue"></label>
-                        <input type="text" class="form-control" id="LabelInfoValue" placeholder="Enter Lable"/>
+                        <input type="text" class="form-control" id="LabelInfoValue" placeholder="Enter Label"/>
                     </div>
                 </form>
             </div>

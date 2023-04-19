@@ -64,7 +64,6 @@ def extract_frames(data: dict,
 
     current_frame = 0
     while True:
-        current_frame += 1
         ret, frame = cap.read()
         if ret:
             filename = os.path.join(output_path, f'{current_frame:06d}.jpg').replace('\\', '/')
@@ -74,6 +73,8 @@ def extract_frames(data: dict,
                 status_queue.put({'status': 'downloading', 'progress': (current_frame + 1) / frame_count})
         else:
             break
+        current_frame += 1
+        
     cap.release()
 
     if status_queue is not None:
@@ -105,7 +106,7 @@ def download_videos(videos: list, status_queue: Queue):
 
 
 def process_videos(videos: list, status_queue: Queue):
-    # create a thread calling download_videos, pas in the json_files and output_path, and status_queue
+    # create a thread calling download_videos, pass in the json_files and output_path, and status_queue
     t = Thread(target=download_videos, args=(videos, status_queue))
     t.daemon = True
     t.start()
