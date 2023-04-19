@@ -45,7 +45,7 @@ class Controller:
         # the current index in our frame map
         self.current_index = 0
         # process all json files
-        self.json_files = natsorted(list(glob(cfg['json_path'] + '/*.json')))
+        self.json_files = [cfg['json_path']] #natsorted(list(glob(cfg['json_path'] + '/*.json')))
 
         self.status_queue = Queue()
 
@@ -116,14 +116,14 @@ class Controller:
         img = cv2.imread(os.path.join(current_object_data['frame_path'], f'{frame_no:06d}.jpg'))
 
         for obj in self.current_object_data['objects']:
-            x, y, w, h = obj['bbox']['left'], obj['bbox']['top'], obj['bbox']['width'], obj['bbox']['height']
+            x, y, w, h = round(obj['bbox']['left']), round(obj['bbox']['top']), round(obj['bbox']['width']), round(obj['bbox']['height'])
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         # draw labels on top
         for obj in self.current_object_data['objects']:
             if 'classifications' not in obj or len(obj['classifications']) == 0:
                 continue
-            x, y, w, h = obj['bbox']['left'], obj['bbox']['top'], obj['bbox']['width'], obj['bbox']['height']
+            x, y, w, h = round(obj['bbox']['left']), round(obj['bbox']['top']), round(obj['bbox']['width']), round(obj['bbox']['height'])
             draw_text(img=img,
                       text=obj['classifications'][0]['answer']['value'],
                       pos=(x, y - 20),

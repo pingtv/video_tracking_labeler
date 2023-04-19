@@ -1,5 +1,5 @@
 {
-  "json_path": "./data/tracking_annotation_sample",
+  "json_path": "./data/input_jsons/6687_129343_1671382991_raw_clip_person_bboxes.json",
   "json_output_path": "./data/output_jsons",
   "video_path" : "./data/videos"
 }

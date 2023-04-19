@@ -64,7 +64,6 @@ def extract_frames(data: dict,
 
     current_frame = 0
     while True:
-        current_frame += 1
         ret, frame = cap.read()
         if ret:
             filename = os.path.join(output_path, f'{current_frame:06d}.jpg').replace('\\', '/')
@@ -74,6 +73,8 @@ def extract_frames(data: dict,
                 status_queue.put({'status': 'downloading', 'progress': (current_frame + 1) / frame_count})
         else:
             break
+        current_frame += 1
+        
     cap.release()
 
     if status_queue is not None:
