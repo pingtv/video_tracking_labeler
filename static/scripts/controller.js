@@ -5,9 +5,13 @@ let controller = {
         object_data: null,
         selected_object: null,
     },
+    zoomScale: 1,
+    dragStartX: 0,
+    dragStartY: 0,
     uiElements: {
         btn_next: $("#btn_next"),
         btn_prev: $("#btn_prev"),
+        img_container: $("#img_container"),
         img_frame: $("#img_frame"),
         frameNumber: $("#frameNumber"),
         info_label: $("#LabelInfoValue"),
@@ -181,8 +185,9 @@ let controller = {
             var realWidth = this.naturalWidth;
             var realHeight = this.naturalHeight;
 
-            var x = e.pageX - this.offsetLeft;
-            var y = e.pageY - this.offsetTop;
+            var imgOffset = $(this).offset();
+            var x = e.pageX - imgOffset.left;
+            var y = e.pageY - imgOffset.top;
 
             let orig_x = Math.round(x * realWidth / this.width);
             let orig_y = Math.round(y * realHeight / this.height);
@@ -227,6 +232,71 @@ let controller = {
                 $(this).trigger('change');
             }
         });
+
+        // --- handle zoom ----
+        that.uiElements.img_container.on('wheel', function (event) { that.handleZoom(event); });
+
+        // --- handle drag ----
+        that.uiElements.img_frame.on('mousedown', function (e) {
+            e.preventDefault();
+            that.dragStartX = e.pageX;
+            that.dragStartY = e.pageY;
+            $(document).on('mousemove', function (e) {
+                that.handleDrag(e);
+            });
+        });
+        $(document).on('mouseup', function (e) {
+            $(document).off('mousemove');
+        });
+        
+        
+    },
+
+    handleDrag: function (event) {
+        event.preventDefault();
+    
+        let imgFrame = this.uiElements.img_frame;
+        let deltaX = event.pageX - this.dragStartX;
+        let deltaY = event.pageY - this.dragStartY;
+    
+        let currentLeft = parseFloat(imgFrame.css('left'));
+        let currentTop = parseFloat(imgFrame.css('top'));
+
+        if (isNaN(currentLeft)) {
+            currentLeft = 0;
+        }
+        if (isNaN(currentTop)) {
+            currentTop = 0;
+        }
+    
+        imgFrame.css({
+            'left': currentLeft + deltaX,
+            'top': currentTop + deltaY,
+        });
+    
+        this.dragStartX = event.pageX;
+        this.dragStartY = event.pageY;
+    },    
+
+    handleZoom: function (event) {
+        event.preventDefault();
+        
+        let scaleAmount = 0.1;
+        let imgFrame = this.uiElements.img_frame;
+        
+        let scaleMultiplier = event.originalEvent.deltaY > 0 ? 1 - scaleAmount : 1 + scaleAmount;
+        
+        let currentWidth = imgFrame.width();
+        let currentHeight = imgFrame.height();
+        
+        let newWidth = currentWidth * scaleMultiplier;
+        let newHeight = currentHeight * scaleMultiplier;
+        
+        imgFrame.width(newWidth);
+        imgFrame.height(newHeight);
+
+        // Update the zoomScale
+        this.zoomScale *= scaleMultiplier;
     },
 
     updateFrame: function() {
