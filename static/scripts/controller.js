@@ -5,9 +5,13 @@ let controller = {
         object_data: null,
         selected_object: null,
     },
+    zoomScale: 1,
+    dragStartX: 0,
+    dragStartY: 0,
     uiElements: {
         btn_next: $("#btn_next"),
         btn_prev: $("#btn_prev"),
+        img_container: $("#img_container"),
         img_frame: $("#img_frame"),
         info_label: $("#LabelInfoValue"),
         input_form: $("#ModalInputForm"),
@@ -190,8 +194,9 @@ let controller = {
             var realWidth = this.naturalWidth;
             var realHeight = this.naturalHeight;
 
-            var x = e.pageX - this.offsetLeft;
-            var y = e.pageY - this.offsetTop;
+            var imgOffset = $(this).offset();
+            var x = e.pageX - imgOffset.left;
+            var y = e.pageY - imgOffset.top;
 
             let orig_x = Math.round(x * realWidth / this.width);
             let orig_y = Math.round(y * realHeight / this.height);
@@ -216,6 +221,103 @@ let controller = {
 
         });
 
+        // --- handle frame number change ----
+        this.uiElements.frameNumber.on('change', function() {
+            that.updateFrame();
+        });        
+
+        // Make sure enter doesn't reload the page
+        this.uiElements.frameNumber.on('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $(this).trigger('change');
+            }
+        });
+
+        // --- handle zoom ----
+        that.uiElements.img_container.on('wheel', function (event) { that.handleZoom(event); });
+
+        // --- handle drag ----
+        that.uiElements.img_frame.on('mousedown', function (e) {
+            e.preventDefault();
+            that.dragStartX = e.pageX;
+            that.dragStartY = e.pageY;
+            $(document).on('mousemove', function (e) {
+                that.handleDrag(e);
+            });
+        });
+        $(document).on('mouseup', function (e) {
+            $(document).off('mousemove');
+        });
+        
+        
+    },
+
+    handleDrag: function (event) {
+        event.preventDefault();
+    
+        let imgFrame = this.uiElements.img_frame;
+        let deltaX = event.pageX - this.dragStartX;
+        let deltaY = event.pageY - this.dragStartY;
+    
+        let currentLeft = parseFloat(imgFrame.css('left'));
+        let currentTop = parseFloat(imgFrame.css('top'));
+
+        if (isNaN(currentLeft)) {
+            currentLeft = 0;
+        }
+        if (isNaN(currentTop)) {
+            currentTop = 0;
+        }
+    
+        imgFrame.css({
+            'left': currentLeft + deltaX,
+            'top': currentTop + deltaY,
+        });
+    
+        this.dragStartX = event.pageX;
+        this.dragStartY = event.pageY;
+    },    
+
+    handleZoom: function (event) {
+        event.preventDefault();
+        
+        let scaleAmount = 0.1;
+        let imgFrame = this.uiElements.img_frame;
+        
+        let scaleMultiplier = event.originalEvent.deltaY > 0 ? 1 - scaleAmount : 1 + scaleAmount;
+        
+        let currentWidth = imgFrame.width();
+        let currentHeight = imgFrame.height();
+        
+        let newWidth = currentWidth * scaleMultiplier;
+        let newHeight = currentHeight * scaleMultiplier;
+        
+        imgFrame.width(newWidth);
+        imgFrame.height(newHeight);
+
+        // Update the zoomScale
+        this.zoomScale *= scaleMultiplier;
+    },
+
+    updateFrame: function() {
+        let frameNumber = this.uiElements.frameNumber.val();
+        let that = this;
+        $.ajax({
+            url: '/update_frame',
+            type: 'POST',
+            data: {'frame_number': frameNumber},
+            success: function(data) {
+                if (data.hasOwnProperty('image_data')) {
+                    that.uiElements.img_frame.attr("src", "data:image/jpeg;base64," + data['image_data']);
+                    that.uiElements.frameNumber.attr("value", data['object_data']['frameNumber']);
+                    that.data.object_data = data['object_data']
+                }
+            },
+            error: function(error) {
+                console.log("Error: " + error);
+            }
+        });
     }
 };
 
